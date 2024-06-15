@@ -44,4 +44,9 @@ class Book extends Model
     {
         return $this->belongsTo(Author::class, 'book_author_id', 'author_id');
     }
+
+    public function borrowingDetails()
+    {
+        return $this->hasMany(BorrowingDetail::class, 'detail_book_id', 'book_id');
+    }
 }

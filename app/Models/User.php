@@ -24,4 +24,9 @@ class User extends Authenticatable
     ];
 
     public $timestamps = false;
+
+    public function borrowings()
+    {
+        return $this->hasMany(Borrowing::class, 'borrowing_user_id', 'id');
+    }
 }
