@@ -5,6 +5,7 @@ namespace App\Http\Controllers\api;
 use App\Models\Author;
 use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
+use App\Http\Resources\AuthorResource;
 use Illuminate\Support\Facades\Validator;
 
 class AuthorController extends Controller
@@ -18,7 +19,7 @@ class AuthorController extends Controller
 
         return response()->json([
             'message' => 'Data found',
-            'data' => $data,
+            'data' => AuthorResource::collection($data),
         ], 200);
     }
 
@@ -28,13 +29,12 @@ class AuthorController extends Controller
     public function store(Request $request)
     {
         $validator = Validator::make($request->all(), [
-            'author_name' => 'required|string|max:255',
-            'author_description' => 'required|string|max:255',
+            'author_name' => 'required|max:150',
+            'author_description' => 'max:150',
         ]);
 
         if ($validator->fails()) {
             return response()->json([
-                'status' => false,
                 'message' => 'Validation Error',
                 'data' => $validator->errors(),
             ], 422);
@@ -43,9 +43,8 @@ class AuthorController extends Controller
         $data = Author::create($request->all());
 
         return response()->json([
-            'status' => true,
             'message' => 'Author created successfully',
-            'data' => $data,
+            'data' => new AuthorResource($data),
         ], 201);
     }
 
@@ -58,15 +57,13 @@ class AuthorController extends Controller
 
         if (!$data) {
             return response()->json([
-                'status' => false,
                 'message' => 'Author not found',
             ], 404);
         }
     
         return response()->json([
-            'status' => true,
             'message' => 'Author found',
-            'data' => $data,
+            'data' => new AuthorResource($data),
         ], 200);
     }
 
@@ -76,13 +73,12 @@ class AuthorController extends Controller
     public function update(Request $request, string $id)
     {
         $validator = Validator::make($request->all(), [
-            'author_name' => 'required|string|max:255',
-            'author_description' => 'required|string|max:255',
+            'author_name' => 'required|max:150',
+            'author_description' => 'max:150',
         ]);
     
         if ($validator->fails()) {
             return response()->json([
-                'status' => false,
                 'message' => 'Validation Error',
                 'data' => $validator->errors(),
             ], 422);
@@ -92,7 +88,6 @@ class AuthorController extends Controller
     
         if (!$data) {
             return response()->json([
-                'status' => false,
                 'message' => 'Author not found',
             ], 404);
         }
@@ -100,9 +95,7 @@ class AuthorController extends Controller
         $data->update($request->all());
     
         return response()->json([
-            'status' => true,
             'message' => 'Author updated successfully',
-            'data' => $data,
         ], 200);
     }
 
@@ -115,7 +108,6 @@ class AuthorController extends Controller
 
         if (!$data) {
             return response()->json([
-                'status' => false,
                 'message' => 'Author not found',
             ], 404);
         }
@@ -123,7 +115,6 @@ class AuthorController extends Controller
         $data->delete();
 
         return response()->json([
-            'status' => true,
             'message' => 'Author deleted successfully',
         ], 200);
     }

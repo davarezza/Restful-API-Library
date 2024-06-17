@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\api;
 
 use App\Http\Controllers\Controller;
+use App\Http\Resources\ShelfResource;
 use App\Models\Shelf;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
@@ -18,7 +19,7 @@ class ShelfController extends Controller
 
         return response()->json([
             'message' => 'Data found',
-            'data' => $data,
+            'data' => ShelfResource::collection($data),
         ], 200);
     }
 
@@ -28,13 +29,12 @@ class ShelfController extends Controller
     public function store(Request $request)
     {
         $validator = Validator::make($request->all(), [
-            'shelf_name' => 'required|string|max:255',
-            'shelf_position' => 'required|string|max:255',
+            'shelf_name' => 'required|max:150',
+            'shelf_position' => 'required|max:255',
         ]);
 
         if ($validator->fails()) {
             return response()->json([
-                'status' => false,
                 'message' => 'Validation Error',
                 'data' => $validator->errors(),
             ], 422);
@@ -43,9 +43,8 @@ class ShelfController extends Controller
         $data = Shelf::create($request->all());
 
         return response()->json([
-            'status' => true,
             'message' => 'Shelf created successfully',
-            'data' => $data,
+            'data' => new ShelfResource($data),
         ], 201);
     }
 
@@ -58,15 +57,13 @@ class ShelfController extends Controller
 
         if (!$data) {
             return response()->json([
-                'status' => false,
                 'message' => 'Shelf not found',
             ], 404);
         }
     
         return response()->json([
-            'status' => true,
             'message' => 'Shelf found',
-            'data' => $data,
+            'data' => new ShelfResource($data),
         ], 200);
     }
 
@@ -76,13 +73,12 @@ class ShelfController extends Controller
     public function update(Request $request, string $id)
     {
         $validator = Validator::make($request->all(), [
-            'shelf_name' => 'required|string|max:255',
-            'shelf_position' => 'required|string|max:255',
+            'shelf_name' => 'required|max:150',
+            'shelf_position' => 'required|max:255',
         ]);
     
         if ($validator->fails()) {
             return response()->json([
-                'status' => false,
                 'message' => 'Validation Error',
                 'data' => $validator->errors(),
             ], 422);
@@ -92,7 +88,6 @@ class ShelfController extends Controller
     
         if (!$data) {
             return response()->json([
-                'status' => false,
                 'message' => 'Shelf not found',
             ], 404);
         }
@@ -100,9 +95,7 @@ class ShelfController extends Controller
         $data->update($request->all());
     
         return response()->json([
-            'status' => true,
             'message' => 'Shelf updated successfully',
-            'data' => $data,
         ], 200);
     }
 
@@ -115,7 +108,6 @@ class ShelfController extends Controller
 
         if (!$data) {
             return response()->json([
-                'status' => false,
                 'message' => 'Shelf not found',
             ], 404);
         }
@@ -123,7 +115,6 @@ class ShelfController extends Controller
         $data->delete();
 
         return response()->json([
-            'status' => true,
             'message' => 'Shelf deleted successfully',
         ], 200);
     }

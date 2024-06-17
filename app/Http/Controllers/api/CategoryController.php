@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\api;
 
 use App\Http\Controllers\Controller;
+use App\Http\Resources\CategoryResource;
 use App\Models\Category;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
@@ -18,7 +19,7 @@ class CategoryController extends Controller
 
         return response()->json([
             'message' => 'Data found',
-            'data' => $data,
+            'data' => CategoryResource::collection($data),
         ], 200);
     }
 
@@ -28,13 +29,12 @@ class CategoryController extends Controller
     public function store(Request $request)
     {
         $validator = Validator::make($request->all(), [
-            'category_name' => 'required|string|max:255',
-            'category_description' => 'required|string|max:255',
+            'category_name' => 'required|max:150',
+            'category_description' => 'max:150',
         ]);
 
         if ($validator->fails()) {
             return response()->json([
-                'status' => false,
                 'message' => 'Validation Error',
                 'data' => $validator->errors(),
             ], 422);
@@ -43,9 +43,8 @@ class CategoryController extends Controller
         $data = Category::create($request->all());
 
         return response()->json([
-            'status' => true,
             'message' => 'Category created successfully',
-            'data' => $data,
+            'data' => new CategoryResource($data),
         ], 201);
     }
 
@@ -58,15 +57,13 @@ class CategoryController extends Controller
 
         if (!$data) {
             return response()->json([
-                'status' => false,
                 'message' => 'Category not found',
             ], 404);
         }
     
         return response()->json([
-            'status' => true,
             'message' => 'Category found',
-            'data' => $data,
+            'data' => new CategoryResource($data),
         ], 200);
     }
 
@@ -76,13 +73,12 @@ class CategoryController extends Controller
     public function update(Request $request, string $id)
     {
         $validator = Validator::make($request->all(), [
-            'category_name' => 'required|string|max:255',
-            'category_description' => 'required|string|max:255',
+            'category_name' => 'required|max:150',
+            'category_description' => 'max:150',
         ]);
     
         if ($validator->fails()) {
             return response()->json([
-                'status' => false,
                 'message' => 'Validation Error',
                 'data' => $validator->errors(),
             ], 422);
@@ -92,7 +88,6 @@ class CategoryController extends Controller
     
         if (!$data) {
             return response()->json([
-                'status' => false,
                 'message' => 'Category not found',
             ], 404);
         }
@@ -100,9 +95,7 @@ class CategoryController extends Controller
         $data->update($request->all());
     
         return response()->json([
-            'status' => true,
             'message' => 'Category updated successfully',
-            'data' => $data,
         ], 200);
     }
 
@@ -115,7 +108,6 @@ class CategoryController extends Controller
 
         if (!$data) {
             return response()->json([
-                'status' => false,
                 'message' => 'Category not found',
             ], 404);
         }
@@ -123,7 +115,6 @@ class CategoryController extends Controller
         $data->delete();
 
         return response()->json([
-            'status' => true,
             'message' => 'Category deleted successfully',
         ], 200);
     }

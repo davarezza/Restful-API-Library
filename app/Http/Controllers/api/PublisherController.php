@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\api;
 
 use App\Http\Controllers\Controller;
+use App\Http\Resources\PublisherResource;
 use App\Models\Publisher;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
@@ -18,7 +19,7 @@ class PublisherController extends Controller
 
         return response()->json([
             'message' => 'Data found',
-            'data' => $data,
+            'data' => PublisherResource::collection($data),
         ], 200);
     }
 
@@ -28,13 +29,12 @@ class PublisherController extends Controller
     public function store(Request $request)
     {
         $validator = Validator::make($request->all(), [
-            'publisher_name' => 'required|string|max:255',
-            'publisher_description' => 'required|string|max:255',
+            'publisher_name' => 'required|max:150',
+            'publisher_description' => 'max:150',
         ]);
 
         if ($validator->fails()) {
             return response()->json([
-                'status' => false,
                 'message' => 'Validation Error',
                 'data' => $validator->errors(),
             ], 422);
@@ -43,9 +43,8 @@ class PublisherController extends Controller
         $data = Publisher::create($request->all());
 
         return response()->json([
-            'status' => true,
             'message' => 'Publisher created successfully',
-            'data' => $data,
+            'data' => new PublisherResource($data),
         ], 201);
     }
 
@@ -58,15 +57,13 @@ class PublisherController extends Controller
 
         if (!$data) {
             return response()->json([
-                'status' => false,
                 'message' => 'Publisher not found',
             ], 404);
         }
     
         return response()->json([
-            'status' => true,
             'message' => 'Publisher found',
-            'data' => $data,
+            'data' => new PublisherResource($data),
         ], 200);
     }
 
@@ -76,13 +73,12 @@ class PublisherController extends Controller
     public function update(Request $request, string $id)
     {
         $validator = Validator::make($request->all(), [
-            'publisher_name' => 'required|string|max:255',
-            'publisher_description' => 'required|string|max:255',
+            'publisher_name' => 'required|max:150',
+            'publisher_description' => 'max:150',
         ]);
     
         if ($validator->fails()) {
             return response()->json([
-                'status' => false,
                 'message' => 'Validation Error',
                 'data' => $validator->errors(),
             ], 422);
@@ -92,7 +88,6 @@ class PublisherController extends Controller
     
         if (!$data) {
             return response()->json([
-                'status' => false,
                 'message' => 'Publisher not found',
             ], 404);
         }
@@ -100,9 +95,7 @@ class PublisherController extends Controller
         $data->update($request->all());
     
         return response()->json([
-            'status' => true,
             'message' => 'Publisher updated successfully',
-            'data' => $data,
         ], 200);
     }
 
@@ -115,7 +108,6 @@ class PublisherController extends Controller
 
         if (!$data) {
             return response()->json([
-                'status' => false,
                 'message' => 'Publisher not found',
             ], 404);
         }
@@ -123,7 +115,6 @@ class PublisherController extends Controller
         $data->delete();
 
         return response()->json([
-            'status' => true,
             'message' => 'Publisher deleted successfully',
         ], 200);
     }

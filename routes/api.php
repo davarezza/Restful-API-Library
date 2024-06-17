@@ -10,8 +10,10 @@ use Illuminate\Support\Facades\Route;
 
 Route::prefix('library')->group(function() {
     Route::post('login', [AuthController::class, 'login']);
-    Route::apiResource('shelves', ShelfController::class);
-    Route::apiResource('publishers', PublisherController::class);
-    Route::apiResource('categories', CategoryController::class);
-    Route::apiResource('authors', AuthorController::class);
+    Route::middleware('auth:sanctum')->group(function() {
+        Route::apiResource('shelves', ShelfController::class);
+        Route::apiResource('publishers', PublisherController::class);
+        Route::apiResource('categories', CategoryController::class);
+        Route::apiResource('authors', AuthorController::class);
+    });
 });
