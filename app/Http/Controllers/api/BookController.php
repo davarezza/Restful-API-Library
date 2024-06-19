@@ -100,9 +100,7 @@ class BookController extends Controller
         try {
             DB::beginTransaction();
     
-            // Handle new image upload
             if ($request->hasFile('book_img')) {
-                // Delete old image
                 $oldImage = public_path('img/books/' . $data->book_img);
                 if (File::exists($oldImage)) {
                     File::delete($oldImage);

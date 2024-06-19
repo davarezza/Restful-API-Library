@@ -20,7 +20,6 @@ class AuthController extends Controller
         $validator = Validator::make($request->all(), $rules);
         if ($validator->fails()) {
             return response()->json([
-                'status' => false,
                 'message' => 'Login Failed',
                 'data' => $validator->errors()
             ], 401);
@@ -29,23 +28,25 @@ class AuthController extends Controller
         $data = User::where('email', $request->email)->first();
         if (!$data || !Hash::check($request->password, $data->password)) {
             return response()->json([
-                'status' => false,
                 'message' => 'Incorrect Email or Password'
             ], 401);
         }
     
         if (!$data) {
             return response()->json([
-                'status' => false,
                 'message' => 'Incorrect Email or Password'
             ], 401);
         }
     
         $token = $data->createToken('data-token')->plainTextToken;
     
+        $message = 'Login Successfully';
+        if ($data->isadmin) {
+            $message .= ' - Welcome Admin';
+        }
+    
         return response()->json([
-            'status' => true,
-            'message' => 'Login Successfully',
+            'message' => $message,
             'token' => $token,
         ]);
     }

@@ -24,6 +24,15 @@ class DatabaseSeeder extends Seeder
                 'email' => 'davarezz@gmail.com',
                 'password' => Hash::make('123'),
             ],
+            [
+                'id' => Str::uuid(),
+                'firstname' => 'Admin',
+                'lastname' => '1',
+                'username' => 'admin',
+                'email' => 'admin@gmail.com',
+                'isadmin' => true,
+                'password' => Hash::make('123'),
+            ],
         ];
 
         foreach ($users as $user) {

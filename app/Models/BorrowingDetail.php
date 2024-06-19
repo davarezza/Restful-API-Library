@@ -2,20 +2,34 @@
 
 namespace App\Models;
 
-use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Support\Str;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 
 class BorrowingDetail extends Model
 {
     use HasFactory;
 
     protected $primaryKey = 'detail_id';
+    public $incrementing = false;
+    protected $keyType = 'string';
 
     protected $fillable = [
         'detail_book_id',
         'detail_borrowing_id',
         'detail_quantity',
     ];
+
+    protected static function boot()
+    {
+        parent::boot();
+
+        static::creating(function ($model) {
+            if (empty($model->{$model->getKeyName()})) {
+                $model->{$model->getKeyName()} = (string) Str::uuid();
+            }
+        });
+    }
 
     public $timestamps = false;
 
