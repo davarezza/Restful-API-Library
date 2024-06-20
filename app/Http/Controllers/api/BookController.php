@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Http\Controllers\api;
+namespace App\Http\Controllers\API;
 
 use App\Http\Controllers\Controller;
 use App\Http\Requests\BookRequest;
@@ -21,6 +21,7 @@ class BookController extends Controller
         $data = Book::all();
 
         return response()->json([
+            'success' => true,
             'message' => 'Data found',
             'data' => BookResource::collection($data),
         ], 200);
@@ -53,6 +54,7 @@ class BookController extends Controller
             DB::commit();
 
             return response()->json([
+                'success' => true,
                 'message' => 'Book created successfully',
                 'data' => new BookResource($data),
             ], 201);
@@ -60,6 +62,7 @@ class BookController extends Controller
             DB::rollback();
 
             return response()->json([
+                'success' => false,
                 'message' => 'Failed to store book: ' . $e->getMessage(),
             ], 500);
         }
@@ -74,11 +77,13 @@ class BookController extends Controller
 
         if (!$data) {
             return response()->json([
+                'success' => false,
                 'message' => 'Book not found',
             ], 404);
         }
 
         return response()->json([
+            'success' => true,
             'message' => 'Book found',
             'data' => new BookResource($data),
         ], 200);
@@ -93,6 +98,7 @@ class BookController extends Controller
     
         if (!$data) {
             return response()->json([
+                'success' => false,
                 'message' => 'Book not found',
             ], 404);
         }
@@ -117,12 +123,14 @@ class BookController extends Controller
             DB::commit();
     
             return response()->json([
+                'success' => true,
                 'message' => 'Book updated successfully',
             ], 200);
         } catch (\Exception $e) {
             DB::rollback();
     
             return response()->json([
+                'success' => false,
                 'message' => 'Failed to update book: ' . $e->getMessage(),
             ], 500);
         }
@@ -137,6 +145,7 @@ class BookController extends Controller
     
         if (!$data) {
             return response()->json([
+                'success' => false,
                 'message' => 'Book not found',
             ], 404);
         }
@@ -155,12 +164,14 @@ class BookController extends Controller
             DB::commit();
     
             return response()->json([
+                'success' => true,
                 'message' => 'Book deleted successfully',
             ], 200);
         } catch (\Exception $e) {
             DB::rollback();
     
             return response()->json([
+                'success' => false,
                 'message' => 'Failed to delete book: ' . $e->getMessage(),
             ], 500);
         }

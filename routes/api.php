@@ -1,13 +1,13 @@
 <?php
 
-use App\Http\Controllers\api\AuthController;
-use App\Http\Controllers\api\AuthorController;
-use App\Http\Controllers\api\BookController;
-use App\Http\Controllers\api\BorrowinDetailController;
-use App\Http\Controllers\api\BorrowingController;
-use App\Http\Controllers\api\CategoryController;
-use App\Http\Controllers\api\PublisherController;
-use App\Http\Controllers\api\ShelfController;
+use App\Http\Controllers\API\AuthController;
+use App\Http\Controllers\API\AuthorController;
+use App\Http\Controllers\API\BookController;
+use App\Http\Controllers\API\BorrowinDetailController;
+use App\Http\Controllers\API\BorrowingController;
+use App\Http\Controllers\API\CategoryController;
+use App\Http\Controllers\API\PublisherController;
+use App\Http\Controllers\API\ShelfController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 

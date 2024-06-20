@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Http\Controllers\api;
+namespace App\Http\Controllers\API;
 
 use App\Http\Controllers\Controller;
 use App\Http\Resources\CategoryResource;
@@ -18,6 +18,7 @@ class CategoryController extends Controller
         $data = Category::all();
 
         return response()->json([
+            'success' => true,
             'message' => 'Data found',
             'data' => CategoryResource::collection($data),
         ], 200);
@@ -35,6 +36,7 @@ class CategoryController extends Controller
 
         if ($validator->fails()) {
             return response()->json([
+                'success' => false,
                 'message' => 'Validation Error',
                 'data' => $validator->errors(),
             ], 422);
@@ -43,6 +45,7 @@ class CategoryController extends Controller
         $data = Category::create($request->all());
 
         return response()->json([
+            'success' => true,
             'message' => 'Category created successfully',
             'data' => new CategoryResource($data),
         ], 201);
@@ -57,11 +60,13 @@ class CategoryController extends Controller
 
         if (!$data) {
             return response()->json([
+                'success' => false,
                 'message' => 'Category not found',
             ], 404);
         }
     
         return response()->json([
+            'success' => true,
             'message' => 'Category found',
             'data' => new CategoryResource($data),
         ], 200);
@@ -79,6 +84,7 @@ class CategoryController extends Controller
     
         if ($validator->fails()) {
             return response()->json([
+                'success' => false,
                 'message' => 'Validation Error',
                 'data' => $validator->errors(),
             ], 422);
@@ -88,6 +94,7 @@ class CategoryController extends Controller
     
         if (!$data) {
             return response()->json([
+                'success' => false,
                 'message' => 'Category not found',
             ], 404);
         }
@@ -95,6 +102,7 @@ class CategoryController extends Controller
         $data->update($request->all());
     
         return response()->json([
+            'success' => true,
             'message' => 'Category updated successfully',
         ], 200);
     }
@@ -108,6 +116,7 @@ class CategoryController extends Controller
 
         if (!$data) {
             return response()->json([
+                'success' => false,
                 'message' => 'Category not found',
             ], 404);
         }
@@ -115,6 +124,7 @@ class CategoryController extends Controller
         $data->delete();
 
         return response()->json([
+            'success' => true,
             'message' => 'Category deleted successfully',
         ], 200);
     }

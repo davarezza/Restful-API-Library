@@ -30,6 +30,21 @@ class Shelf extends Model
         });
     }
 
+    public static function createShelf(array $data)
+    {
+        return self::create($data);
+    }
+
+    public function updateShelf(array $data)
+    {
+        return $this->update($data);
+    }
+
+    public static function findShelf(string $id)
+    {
+        return self::find($id);
+    }
+
     public $timestamps = false;
 
     public function books()

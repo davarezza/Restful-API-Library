@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Http\Controllers\api;
+namespace App\Http\Controllers\API;
 
 use App\Http\Controllers\Controller;
 use App\Http\Requests\BorrowingRequest;
@@ -19,6 +19,7 @@ class BorrowingController extends Controller
         $data = Borrowing::all();
 
         return response()->json([
+            'success' => true,
             'message' => 'Data found',
             'data' => BorrowingResource::collection($data),
         ], 200);
@@ -37,6 +38,7 @@ class BorrowingController extends Controller
             DB::commit();
 
             return response()->json([
+                'success' => true,
                 'message' => 'Borrowing created successfully',
                 'data' => new BorrowingResource($data),
             ], 201);
@@ -44,6 +46,7 @@ class BorrowingController extends Controller
             DB::rollback();
 
             return response()->json([
+                'success' => false,
                 'message' => 'Failed to store borrowing: ' . $e->getMessage(),
             ], 500);
         }
@@ -58,11 +61,13 @@ class BorrowingController extends Controller
 
         if (!$data) {
             return response()->json([
+                'success' => false,
                 'message' => 'Borrowing not found',
             ], 404);
         }
 
         return response()->json([
+            'success' => true,
             'message' => 'Borrowing found',
             'data' => new BorrowingResource($data),
         ], 200);
@@ -82,12 +87,14 @@ class BorrowingController extends Controller
             DB::commit();
     
             return response()->json([
+                'success' => true,
                 'message' => 'Borrowing updated successfully',
             ], 200);
         } catch (\Exception $e) {
             DB::rollback();
     
             return response()->json([
+                'success' => false,
                 'message' => 'Failed to update borrowing: ' . $e->getMessage(),
             ], 500);
         }

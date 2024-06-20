@@ -1,12 +1,13 @@
 <?php
 
-namespace App\Http\Controllers\api;
+namespace App\Http\Controllers\API;
 
 use App\Http\Controllers\Controller;
+use App\Http\Requests\ShelfRequest;
+use App\Http\Resources\ShelfCollection;
 use App\Http\Resources\ShelfResource;
 use App\Models\Shelf;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Validator;
 
 class ShelfController extends Controller
 {
@@ -15,106 +16,59 @@ class ShelfController extends Controller
      */
     public function index()
     {
-        $data = Shelf::all();
+        $data = Shelf::paginate(10);
 
-        return response()->json([
-            'message' => 'Data found',
-            'data' => ShelfResource::collection($data),
-        ], 200);
+        // return response()->json([
+        //     'success' => true,
+        //     'message' => 'Data found',
+        //     'data' => new ShelfCollection($data),
+        // ], 200);
+        return new ShelfCollection($data);
     }
 
     /**
      * Store a newly created resource in storage.
      */
-    public function store(Request $request)
+    public function store(ShelfRequest $request)
     {
-        $validator = Validator::make($request->all(), [
-            'shelf_name' => 'required|max:150',
-            'shelf_position' => 'required|max:255',
-        ]);
-
-        if ($validator->fails()) {
-            return response()->json([
-                'message' => 'Validation Error',
-                'data' => $validator->errors(),
-            ], 422);
-        }
-
-        $data = Shelf::create($request->all());
+        $data = Shelf::createShelf($request->validated());
 
         return response()->json([
+            'success' => true,
             'message' => 'Shelf created successfully',
             'data' => new ShelfResource($data),
         ], 201);
     }
 
-    /**
-     * Display the specified resource.
-     */
     public function show(string $id)
     {
-        $data = Shelf::find($id);
+        $data = Shelf::findOrFailShelf($id);
 
-        if (!$data) {
-            return response()->json([
-                'message' => 'Shelf not found',
-            ], 404);
-        }
-    
         return response()->json([
+            'success' => true,
             'message' => 'Shelf found',
             'data' => new ShelfResource($data),
         ], 200);
     }
 
-    /**
-     * Update the specified resource in storage.
-     */
-    public function update(Request $request, string $id)
+    public function update(ShelfRequest $request, string $id)
     {
-        $validator = Validator::make($request->all(), [
-            'shelf_name' => 'required|max:150',
-            'shelf_position' => 'required|max:255',
-        ]);
-    
-        if ($validator->fails()) {
-            return response()->json([
-                'message' => 'Validation Error',
-                'data' => $validator->errors(),
-            ], 422);
-        }
-    
-        $data = Shelf::find($id);
-    
-        if (!$data) {
-            return response()->json([
-                'message' => 'Shelf not found',
-            ], 404);
-        }
-    
-        $data->update($request->all());
-    
+        $data = Shelf::findOrFailShelf($id);
+        $data->updateShelf($request->validated());
+
         return response()->json([
+            'success' => true,
             'message' => 'Shelf updated successfully',
         ], 200);
     }
 
-    /**
-     * Remove the specified resource from storage.
-     */
     public function destroy(string $id)
     {
-        $data = Shelf::find($id);
-
-        if (!$data) {
-            return response()->json([
-                'message' => 'Shelf not found',
-            ], 404);
-        }
-
+        $data = Shelf::findOrFailShelf($id);
         $data->delete();
 
         return response()->json([
+            'success' => true,
             'message' => 'Shelf deleted successfully',
         ], 200);
     }

@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Http\Controllers\api;
+namespace App\Http\Controllers\API;
 
 use App\Http\Controllers\Controller;
 use App\Http\Resources\PublisherResource;
@@ -18,6 +18,7 @@ class PublisherController extends Controller
         $data = Publisher::all();
 
         return response()->json([
+            'success' => true,
             'message' => 'Data found',
             'data' => PublisherResource::collection($data),
         ], 200);
@@ -35,6 +36,7 @@ class PublisherController extends Controller
 
         if ($validator->fails()) {
             return response()->json([
+                'success' => false,
                 'message' => 'Validation Error',
                 'data' => $validator->errors(),
             ], 422);
@@ -43,6 +45,7 @@ class PublisherController extends Controller
         $data = Publisher::create($request->all());
 
         return response()->json([
+            'success' => true,
             'message' => 'Publisher created successfully',
             'data' => new PublisherResource($data),
         ], 201);
@@ -57,11 +60,13 @@ class PublisherController extends Controller
 
         if (!$data) {
             return response()->json([
+                'success' => false,
                 'message' => 'Publisher not found',
             ], 404);
         }
     
         return response()->json([
+            'success' => true,
             'message' => 'Publisher found',
             'data' => new PublisherResource($data),
         ], 200);
@@ -79,6 +84,7 @@ class PublisherController extends Controller
     
         if ($validator->fails()) {
             return response()->json([
+                'success' => false,
                 'message' => 'Validation Error',
                 'data' => $validator->errors(),
             ], 422);
@@ -88,6 +94,7 @@ class PublisherController extends Controller
     
         if (!$data) {
             return response()->json([
+                'success' => false,
                 'message' => 'Publisher not found',
             ], 404);
         }
@@ -95,6 +102,7 @@ class PublisherController extends Controller
         $data->update($request->all());
     
         return response()->json([
+            'success' => true,
             'message' => 'Publisher updated successfully',
         ], 200);
     }
@@ -108,6 +116,7 @@ class PublisherController extends Controller
 
         if (!$data) {
             return response()->json([
+                'success' => false,
                 'message' => 'Publisher not found',
             ], 404);
         }
@@ -115,6 +124,7 @@ class PublisherController extends Controller
         $data->delete();
 
         return response()->json([
+            'success' => true,
             'message' => 'Publisher deleted successfully',
         ], 200);
     }

@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Http\Controllers\api;
+namespace App\Http\Controllers\API;
 
 use App\Http\Controllers\Controller;
 use App\Models\User;
@@ -20,6 +20,7 @@ class AuthController extends Controller
         $validator = Validator::make($request->all(), $rules);
         if ($validator->fails()) {
             return response()->json([
+                'success' => false,
                 'message' => 'Login Failed',
                 'data' => $validator->errors()
             ], 401);
@@ -28,12 +29,14 @@ class AuthController extends Controller
         $data = User::where('email', $request->email)->first();
         if (!$data || !Hash::check($request->password, $data->password)) {
             return response()->json([
+                'success' => false,
                 'message' => 'Incorrect Email or Password'
             ], 401);
         }
     
         if (!$data) {
             return response()->json([
+                'success' => false,
                 'message' => 'Incorrect Email or Password'
             ], 401);
         }
@@ -46,6 +49,7 @@ class AuthController extends Controller
         }
     
         return response()->json([
+            'success' => true,
             'message' => $message,
             'token' => $token,
         ]);
