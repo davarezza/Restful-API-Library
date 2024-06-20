@@ -11,6 +11,11 @@ use Illuminate\Http\Request;
 
 class ShelfController extends Controller
 {
+    public function __construct()
+    {
+        // $this->middleware('isAdmin')->only(['store', 'update', 'destroy']);
+    }
+
     /**
      * Display a listing of the resource.
      */
@@ -18,12 +23,17 @@ class ShelfController extends Controller
     {
         $data = Shelf::paginate(10);
 
-        // return response()->json([
-        //     'success' => true,
-        //     'message' => 'Data found',
-        //     'data' => new ShelfCollection($data),
-        // ], 200);
-        return new ShelfCollection($data);
+        return response()->json([
+            'success' => true,
+            'message' => 'Shelves found',
+            'data' => ShelfResource::collection($data),
+            'meta' => [
+                'total' => $data->total(),
+                'per_page' => $data->perPage(),
+                'current_page' => $data->currentPage(),
+                'last_page' => $data->lastPage(),
+            ],
+        ], 200);
     }
 
     /**

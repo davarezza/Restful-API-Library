@@ -5,6 +5,7 @@ namespace App\Models;
 use Illuminate\Support\Str;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Support\Facades\File;
 
 class Book extends Model
 {
@@ -35,6 +36,52 @@ class Book extends Model
                 $model->{$model->getKeyName()} = (string) Str::uuid();
             }
         });
+    }
+
+    public static function createBook($data)
+    {
+        if (isset($data['book_img'])) {
+            $file = $data['book_img'];
+            $imageName = md5($file->getClientOriginalName() . microtime()) . '.' . $file->getClientOriginalExtension();
+            $file->move(public_path('img/books'), $imageName);
+            $data['book_img'] = $imageName;
+        }
+
+        return self::create($data);
+    }
+
+    public static function findBookById($id)
+    {
+        return self::find($id);
+    }
+
+    public function updateBook($data)
+    {
+        if (isset($data['book_img'])) {
+            if (!empty($data->book_img)) {
+                $imageName = public_path('img/book_image/' . $data->book_img);
+                if (file_exists($imageName) && !is_dir($imageName)) {
+                    unlink($imageName);
+                }
+            }
+
+            $file = $data['book_img'];
+            $file->move(public_path('img/books'), $imageName);
+            $data['book_img'] = $imageName;
+        }
+        
+        $imageName = md5($file->getClientOriginalName() . microtime()) . '.' . $file->getClientOriginalExtension();
+        $this->update($data);
+    }
+
+    public function deleteBook()
+    {
+        $imagePath = public_path('img/books/' . $this->book_img);
+        if (File::exists($imagePath)) {
+            File::delete($imagePath);
+        }
+
+        $this->delete();
     }
 
     public $timestamps = false;

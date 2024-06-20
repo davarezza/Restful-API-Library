@@ -5,44 +5,45 @@ namespace App\Http\Controllers\API;
 use App\Models\Author;
 use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
+use App\Http\Requests\AuthorRequest;
 use App\Http\Resources\AuthorResource;
 use Illuminate\Support\Facades\Validator;
 
 class AuthorController extends Controller
 {
+    public function __construct()
+    {
+        // $this->middleware('isAdmin')->except(['index', 'show']);
+    }
+
     /**
      * Display a listing of the resource.
      */
     public function index()
     {
-        $data = Author::all();
+        $data = Author::paginate(10);
 
         return response()->json([
             'success' => true,
-            'message' => 'Data found',
+            'message' => 'Categories found',
             'data' => AuthorResource::collection($data),
+            'meta' => [
+                'total' => $data->total(),
+                'per_page' => $data->perPage(),
+                'current_page' => $data->currentPage(),
+                'last_page' => $data->lastPage(),
+            ],
         ], 200);
     }
 
     /**
      * Store a newly created resource in storage.
      */
-    public function store(Request $request)
+    public function store(AuthorRequest $request)
     {
-        $validator = Validator::make($request->all(), [
-            'author_name' => 'required|max:150',
-            'author_description' => 'max:150',
-        ]);
+        $validated = $request->validated();
 
-        if ($validator->fails()) {
-            return response()->json([
-                'success' => false,
-                'message' => 'Validation Error',
-                'data' => $validator->errors(),
-            ], 422);
-        }
-
-        $data = Author::create($request->all());
+        $data = Author::createAuthor($validated);
 
         return response()->json([
             'success' => true,
@@ -56,7 +57,7 @@ class AuthorController extends Controller
      */
     public function show(string $id)
     {
-        $data = Author::find($id);
+        $data = Author::findAuthor($id);
 
         if (!$data) {
             return response()->json([
@@ -75,22 +76,11 @@ class AuthorController extends Controller
     /**
      * Update the specified resource in storage.
      */
-    public function update(Request $request, string $id)
+    public function update(AuthorRequest $request, string $id)
     {
-        $validator = Validator::make($request->all(), [
-            'author_name' => 'required|max:150',
-            'author_description' => 'max:150',
-        ]);
-    
-        if ($validator->fails()) {
-            return response()->json([
-                'success' => false,
-                'message' => 'Validation Error',
-                'data' => $validator->errors(),
-            ], 422);
-        }
-    
-        $data = Author::find($id);
+        $validated = $request->validated();
+
+        $data = Author::updateAuthor($id, $validated);
     
         if (!$data) {
             return response()->json([
@@ -98,8 +88,6 @@ class AuthorController extends Controller
                 'message' => 'Author not found',
             ], 404);
         }
-    
-        $data->update($request->all());
     
         return response()->json([
             'success' => true,
@@ -112,7 +100,7 @@ class AuthorController extends Controller
      */
     public function destroy(string $id)
     {
-        $data = Author::find($id);
+        $data = Author::findAuthor($id);
 
         if (!$data) {
             return response()->json([

@@ -30,6 +30,27 @@ class Publisher extends Model
         });
     }
 
+    public static function createPublisher(array $data)
+    {
+        return self::create($data);
+    }
+
+    public static function updatePublisher(string $id, array $data)
+    {
+        $publisher = self::find($id);
+        if (!$publisher) {
+            return null;
+        }
+
+        $publisher->update($data);
+        return $publisher;
+    }
+
+    public static function findPublisher(string $id)
+    {
+        return self::find($id);
+    }
+
     public $timestamps = false;
 
     public function books()

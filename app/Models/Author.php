@@ -30,6 +30,27 @@ class Author extends Model
         });
     }
 
+    public static function createAuthor(array $data)
+    {
+        return self::create($data);
+    }
+
+    public static function updateAuthor(string $id, array $data)
+    {
+        $author = self::find($id);
+        if (!$author) {
+            return null;
+        }
+
+        $author->update($data);
+        return $author;
+    }
+
+    public static function findAuthor(string $id)
+    {
+        return self::find($id);
+    }
+
     public $timestamps = false;
 
     public function books()

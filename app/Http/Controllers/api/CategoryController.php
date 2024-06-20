@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\API;
 
 use App\Http\Controllers\Controller;
+use App\Http\Requests\CategoryRequest;
 use App\Http\Resources\CategoryResource;
 use App\Models\Category;
 use Illuminate\Http\Request;
@@ -10,39 +11,39 @@ use Illuminate\Support\Facades\Validator;
 
 class CategoryController extends Controller
 {
+    public function __construct()
+    {
+        // $this->middleware('isAdmin')->except(['index', 'show']);
+    }
+
     /**
      * Display a listing of the resource.
      */
     public function index()
     {
-        $data = Category::all();
+        $data = Category::paginate(10);
 
         return response()->json([
             'success' => true,
-            'message' => 'Data found',
+            'message' => 'Categories found',
             'data' => CategoryResource::collection($data),
+            'meta' => [
+                'total' => $data->total(),
+                'per_page' => $data->perPage(),
+                'current_page' => $data->currentPage(),
+                'last_page' => $data->lastPage(),
+            ],
         ], 200);
     }
 
     /**
      * Store a newly created resource in storage.
      */
-    public function store(Request $request)
+    public function store(CategoryRequest $request)
     {
-        $validator = Validator::make($request->all(), [
-            'category_name' => 'required|max:150',
-            'category_description' => 'max:150',
-        ]);
+        $validated = $request->validated();
 
-        if ($validator->fails()) {
-            return response()->json([
-                'success' => false,
-                'message' => 'Validation Error',
-                'data' => $validator->errors(),
-            ], 422);
-        }
-
-        $data = Category::create($request->all());
+        $data = Category::createCategory($validated);
 
         return response()->json([
             'success' => true,
@@ -56,7 +57,7 @@ class CategoryController extends Controller
      */
     public function show(string $id)
     {
-        $data = Category::find($id);
+        $data = Category::findCategory($id);
 
         if (!$data) {
             return response()->json([
@@ -75,22 +76,11 @@ class CategoryController extends Controller
     /**
      * Update the specified resource in storage.
      */
-    public function update(Request $request, string $id)
+    public function update(CategoryRequest $request, string $id)
     {
-        $validator = Validator::make($request->all(), [
-            'category_name' => 'required|max:150',
-            'category_description' => 'max:150',
-        ]);
-    
-        if ($validator->fails()) {
-            return response()->json([
-                'success' => false,
-                'message' => 'Validation Error',
-                'data' => $validator->errors(),
-            ], 422);
-        }
-    
-        $data = Category::find($id);
+        $validated = $request->validated();
+
+        $data = Category::updateCategory($id, $validated);
     
         if (!$data) {
             return response()->json([
@@ -98,8 +88,6 @@ class CategoryController extends Controller
                 'message' => 'Category not found',
             ], 404);
         }
-    
-        $data->update($request->all());
     
         return response()->json([
             'success' => true,
@@ -112,7 +100,7 @@ class CategoryController extends Controller
      */
     public function destroy(string $id)
     {
-        $data = Category::find($id);
+        $data = Category::findCategory($id);
 
         if (!$data) {
             return response()->json([

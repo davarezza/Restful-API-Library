@@ -30,6 +30,27 @@ class Category extends Model
         });
     }
 
+    public static function createCategory(array $data)
+    {
+        return self::create($data);
+    }
+
+    public static function updateCategory(string $id, array $data)
+    {
+        $category = self::find($id);
+        if (!$category) {
+            return null;
+        }
+
+        $category->update($data);
+        return $category;
+    }
+
+    public static function findCategory(string $id)
+    {
+        return self::find($id);
+    }
+
     public $timestamps = false;
 
     public function books()

@@ -18,12 +18,18 @@ class BookController extends Controller
      */
     public function index()
     {
-        $data = Book::all();
+        $data = Book::paginate(10);
 
         return response()->json([
             'success' => true,
-            'message' => 'Data found',
+            'message' => 'Books found',
             'data' => BookResource::collection($data),
+            'meta' => [
+                'total' => $data->total(),
+                'per_page' => $data->perPage(),
+                'current_page' => $data->currentPage(),
+                'last_page' => $data->lastPage(),
+            ],
         ], 200);
     }
 
@@ -32,40 +38,13 @@ class BookController extends Controller
      */
     public function store(BookRequest $request)
     {
-        try {
-            DB::beginTransaction();
-
-            // Upload and save image
-            if ($request->hasFile('book_img')) {
-                $file = $request->file('book_img');
-                $imageName = md5($file->getClientOriginalName() . microtime()) . '.' . $file->getClientOriginalExtension();
-                $file->move(public_path('img/books'), $imageName);
-            } else {
-                return response()->json([
-                    'message' => 'Image file is required',
-                ], 422);
-            }
-
-            // Create book record
-            $data = Book::create($request->all());
-            $data->book_img = $imageName;
-            $data->save();
-
-            DB::commit();
-
-            return response()->json([
-                'success' => true,
-                'message' => 'Book created successfully',
-                'data' => new BookResource($data),
-            ], 201);
-        } catch (\Exception $e) {
-            DB::rollback();
-
-            return response()->json([
-                'success' => false,
-                'message' => 'Failed to store book: ' . $e->getMessage(),
-            ], 500);
-        }
+        $data = Book::createBook($request->all());
+    
+        return response()->json([
+            'success' => true,
+            'message' => 'Book created successfully',
+            'data' => new BookResource($data),
+        ], 201);
     }
 
     /**
@@ -73,7 +52,7 @@ class BookController extends Controller
      */
     public function show(string $id)
     {
-        $data = Book::find($id);
+        $data = Book::findBookById($id);
 
         if (!$data) {
             return response()->json([
@@ -94,46 +73,21 @@ class BookController extends Controller
      */
     public function update(UpdateBookRequest $request, string $id)
     {
-        $data = Book::find($id);
-    
+        $data = Book::findBookById($id);
+
         if (!$data) {
             return response()->json([
                 'success' => false,
                 'message' => 'Book not found',
             ], 404);
         }
-    
-        try {
-            DB::beginTransaction();
-    
-            if ($request->hasFile('book_img')) {
-                $oldImage = public_path('img/books/' . $data->book_img);
-                if (File::exists($oldImage)) {
-                    File::delete($oldImage);
-                }
-    
-                $file = $request->file('book_img');
-                $imageName = md5($file->getClientOriginalName() . microtime()) . '.' . $file->getClientOriginalExtension();
-                $file->move(public_path('img/books'), $imageName);
-                $data->book_img = $imageName;
-            }
-    
-            $data->update($request->except('book_img'));
-    
-            DB::commit();
-    
-            return response()->json([
-                'success' => true,
-                'message' => 'Book updated successfully',
-            ], 200);
-        } catch (\Exception $e) {
-            DB::rollback();
-    
-            return response()->json([
-                'success' => false,
-                'message' => 'Failed to update book: ' . $e->getMessage(),
-            ], 500);
-        }
+
+        $data->updateBook($request->all());
+
+        return response()->json([
+            'success' => true,
+            'message' => 'Book updated successfully',
+        ], 200);
     }
 
     /**
@@ -141,39 +95,20 @@ class BookController extends Controller
      */
     public function destroy(string $id)
     {
-        $data = Book::find($id);
-    
+        $data = Book::findBookById($id);
+
         if (!$data) {
             return response()->json([
                 'success' => false,
                 'message' => 'Book not found',
             ], 404);
         }
-    
-        try {
-            DB::beginTransaction();
-    
-            // Delete image file
-            $imagePath = public_path('img/books/' . $data->book_img);
-            if (File::exists($imagePath)) {
-                File::delete($imagePath);
-            }
-    
-            $data->delete();
-    
-            DB::commit();
-    
-            return response()->json([
-                'success' => true,
-                'message' => 'Book deleted successfully',
-            ], 200);
-        } catch (\Exception $e) {
-            DB::rollback();
-    
-            return response()->json([
-                'success' => false,
-                'message' => 'Failed to delete book: ' . $e->getMessage(),
-            ], 500);
-        }
+
+        $data->deleteBook();
+
+        return response()->json([
+            'success' => true,
+            'message' => 'Book deleted successfully',
+        ], 200);
     }
 }

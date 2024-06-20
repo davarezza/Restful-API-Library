@@ -3,51 +3,50 @@
 namespace App\Http\Controllers\API;
 
 use App\Http\Controllers\Controller;
+use App\Http\Requests\PublisherRequest;
 use App\Http\Resources\PublisherResource;
 use App\Models\Publisher;
-use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Validator;
 
 class PublisherController extends Controller
 {
+    public function __construct()
+    {
+        // $this->middleware('isAdmin')->except(['index', 'show']);
+    }
+
     /**
      * Display a listing of the resource.
      */
     public function index()
     {
-        $data = Publisher::all();
+        $publishers = Publisher::paginate(10);
 
         return response()->json([
             'success' => true,
-            'message' => 'Data found',
-            'data' => PublisherResource::collection($data),
+            'message' => 'Publishers found',
+            'data' => PublisherResource::collection($publishers),
+            'meta' => [
+                'total' => $publishers->total(),
+                'per_page' => $publishers->perPage(),
+                'current_page' => $publishers->currentPage(),
+                'last_page' => $publishers->lastPage(),
+            ],
         ], 200);
     }
 
     /**
      * Store a newly created resource in storage.
      */
-    public function store(Request $request)
+    public function store(PublisherRequest $request)
     {
-        $validator = Validator::make($request->all(), [
-            'publisher_name' => 'required|max:150',
-            'publisher_description' => 'max:150',
-        ]);
+        $validated = $request->validated();
 
-        if ($validator->fails()) {
-            return response()->json([
-                'success' => false,
-                'message' => 'Validation Error',
-                'data' => $validator->errors(),
-            ], 422);
-        }
-
-        $data = Publisher::create($request->all());
+        $publisher = Publisher::createPublisher($validated);
 
         return response()->json([
             'success' => true,
             'message' => 'Publisher created successfully',
-            'data' => new PublisherResource($data),
+            'data' => new PublisherResource($publisher),
         ], 201);
     }
 
@@ -56,51 +55,38 @@ class PublisherController extends Controller
      */
     public function show(string $id)
     {
-        $data = Publisher::find($id);
+        $publisher = Publisher::findPublisher($id);
 
-        if (!$data) {
+        if (!$publisher) {
             return response()->json([
                 'success' => false,
                 'message' => 'Publisher not found',
             ], 404);
         }
-    
+
         return response()->json([
             'success' => true,
             'message' => 'Publisher found',
-            'data' => new PublisherResource($data),
+            'data' => new PublisherResource($publisher),
         ], 200);
     }
 
     /**
      * Update the specified resource in storage.
      */
-    public function update(Request $request, string $id)
+    public function update(PublisherRequest $request, string $id)
     {
-        $validator = Validator::make($request->all(), [
-            'publisher_name' => 'required|max:150',
-            'publisher_description' => 'max:150',
-        ]);
-    
-        if ($validator->fails()) {
-            return response()->json([
-                'success' => false,
-                'message' => 'Validation Error',
-                'data' => $validator->errors(),
-            ], 422);
-        }
-    
-        $data = Publisher::find($id);
-    
-        if (!$data) {
+        $validated = $request->validated();
+
+        $publisher = Publisher::updatePublisher($id, $validated);
+
+        if (!$publisher) {
             return response()->json([
                 'success' => false,
                 'message' => 'Publisher not found',
             ], 404);
         }
-    
-        $data->update($request->all());
-    
+
         return response()->json([
             'success' => true,
             'message' => 'Publisher updated successfully',
@@ -112,16 +98,16 @@ class PublisherController extends Controller
      */
     public function destroy(string $id)
     {
-        $data = Publisher::find($id);
+        $publisher = Publisher::findPublisher($id);
 
-        if (!$data) {
+        if (!$publisher) {
             return response()->json([
                 'success' => false,
                 'message' => 'Publisher not found',
             ], 404);
         }
 
-        $data->delete();
+        $publisher->delete();
 
         return response()->json([
             'success' => true,
