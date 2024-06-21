@@ -15,7 +15,7 @@ class AuthController extends Controller
     {
         $data = $request->only('email', 'password');
     
-        if (!$token = auth()->attempt($data)) {
+        if (!$token = User::login($data)) {
             return response()->json(['error' => 'Invalid email or password.'], 401);
         }
 

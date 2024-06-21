@@ -66,6 +66,15 @@ class User extends Authenticatable implements JWTSubject
             'password' => 'hashed',
         ];
     }
+
+    public static function login($credentials)
+    {
+        if (!$token = auth()->attempt($credentials)) {
+            return false;
+        }
+
+        return $token;
+    }
  
     /**
      * Get the identifier that will be stored in the subject claim of the JWT.
