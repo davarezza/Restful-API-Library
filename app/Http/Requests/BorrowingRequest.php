@@ -26,6 +26,9 @@ class BorrowingRequest extends FormRequest
             'borrowing_isreturned' => 'sometimes',
             'borrowing_notes' => 'sometimes',
             'borrowing_fine' => 'sometimes|integer',
+            'details' => 'required|array',
+            'details.*.book_id' => 'required',
+            'details.*.quantity' => 'required|integer',
         ];
     }
 }

@@ -2,64 +2,49 @@
 
 namespace App\Http\Controllers\API;
 
+use Illuminate\Http\Request;
+use App\Models\Borrowing;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\BorrowingRequest;
+use App\Http\Resources\BorrowingCollection;
 use App\Http\Resources\BorrowingResource;
-use App\Models\Borrowing;
-use Illuminate\Http\Request;
-use Illuminate\Support\Facades\DB;
 
 class BorrowingController extends Controller
 {
-    /**
-     * Display a listing of the resource.
-     */
     public function index()
     {
-        $data = Borrowing::all();
+        $borrowings = Borrowing::paginate(10);
 
         return response()->json([
             'success' => true,
-            'message' => 'Data found',
-            'data' => BorrowingResource::collection($data),
+            'message' => 'Borrowings found',
+            'data' => new BorrowingCollection($borrowings),
         ], 200);
     }
 
-    /**
-     * Store a newly created resource in storage.
-     */
     public function store(BorrowingRequest $request)
     {
-        try {
-            DB::beginTransaction();
+        $borrowing = Borrowing::storeWithDetails($request->validated());
 
-            $data = Borrowing::create($request->all());
-
-            DB::commit();
-
+        if ($borrowing) {
             return response()->json([
                 'success' => true,
                 'message' => 'Borrowing created successfully',
-                'data' => new BorrowingResource($data),
+                'data' => new BorrowingResource($borrowing),
             ], 201);
-        } catch (\Exception $e) {
-            DB::rollback();
-
-            return response()->json([
-                'success' => false,
-                'message' => 'Failed to store borrowing: ' . $e->getMessage(),
-            ], 500);
         }
+
+        return response()->json([
+            'success' => false,
+            'message' => 'Failed to store borrowing',
+        ], 500);
     }
 
-    /**
-     * Display the specified resource.
-     */
     public function show(string $id)
     {
-        $data = Borrowing::find($id);
+        $borrowing = Borrowing::findByIdWithDetails($id);
 
-        if (!$data) {
+        if (!$borrowing) {
             return response()->json([
                 'success' => false,
                 'message' => 'Borrowing not found',
@@ -69,54 +54,41 @@ class BorrowingController extends Controller
         return response()->json([
             'success' => true,
             'message' => 'Borrowing found',
-            'data' => new BorrowingResource($data),
+            'data' => new BorrowingResource($borrowing),
         ], 200);
     }
 
-    /**
-     * Update the specified resource in storage.
-     */
     public function update(BorrowingRequest $request, string $id)
     {
-        try {
-            DB::beginTransaction();
-    
-            $borrowing = Borrowing::findOrFail($id);
-            $borrowing->update($request->all());
-    
-            DB::commit();
-    
+        $success = Borrowing::updateWithDetails($id, $request->validated());
+
+        if ($success) {
             return response()->json([
                 'success' => true,
                 'message' => 'Borrowing updated successfully',
             ], 200);
-        } catch (\Exception $e) {
-            DB::rollback();
-    
-            return response()->json([
-                'success' => false,
-                'message' => 'Failed to update borrowing: ' . $e->getMessage(),
-            ], 500);
         }
-    }
-
-    /**
-     * Remove the specified resource from storage.
-     */
-    public function destroy(string $id)
-    {
-        $data = Borrowing::find($id);
-
-        if (!$data) {
-            return response()->json([
-                'message' => 'Borrowing not found',
-            ], 404);
-        }
-
-        $data->delete();
 
         return response()->json([
-            'message' => 'Borrowing deleted successfully',
-        ], 200);
+            'success' => false,
+            'message' => 'Failed to update borrowing',
+        ], 500);
+    }
+
+    public function destroy(string $id)
+    {
+        $success = Borrowing::deleteById($id);
+
+        if ($success) {
+            return response()->json([
+                'success' => true,
+                'message' => 'Borrowing deleted successfully',
+            ], 200);
+        }
+
+        return response()->json([
+            'success' => false,
+            'message' => 'Failed to delete borrowing',
+        ], 500);
     }
 }

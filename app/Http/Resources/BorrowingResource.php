@@ -21,6 +21,11 @@ class BorrowingResource extends JsonResource
                 'username' => $this->user->username,
                 'email' => $this->user->email,
             ],
+            // 'detail' => [
+            //     'detail_id' => $this->details->detail_id,
+            //     'detail_book_id' => $this->details->detail_book_id,
+            //     'detail_quantity' => $this->details->detail_quantity,
+            // ],
             'borrowing_isreturned' => $this->borrowing_isreturned,
             'borrowing_notes' => $this->borrowing_notes,
             'borrowing_fine' => $this->borrowing_fine,

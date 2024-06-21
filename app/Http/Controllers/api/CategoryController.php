@@ -2,18 +2,22 @@
 
 namespace App\Http\Controllers\API;
 
-use App\Http\Controllers\Controller;
-use App\Http\Requests\CategoryRequest;
-use App\Http\Resources\CategoryResource;
 use App\Models\Category;
 use Illuminate\Http\Request;
+use App\Http\Controllers\Controller;
+use App\Http\Requests\CategoryRequest;
+use App\Http\Resources\CategoryCollection;
+use App\Http\Resources\CategoryResource;
+use Illuminate\Routing\Controllers\HasMiddleware;
 use Illuminate\Support\Facades\Validator;
+use Illuminate\Routing\Controllers\Middleware;
 
-class CategoryController extends Controller
+class CategoryController extends Controller implements HasMiddleware
 {
-    public function __construct()
-    {
-        // $this->middleware('isAdmin')->except(['index', 'show']);
+    public static function middleware(): array {
+        return [
+            new Middleware(middleware: 'isAdmin', except: ['index', 'show']),
+        ];
     }
 
     /**
@@ -25,14 +29,8 @@ class CategoryController extends Controller
 
         return response()->json([
             'success' => true,
-            'message' => 'Categories found',
-            'data' => CategoryResource::collection($data),
-            'meta' => [
-                'total' => $data->total(),
-                'per_page' => $data->perPage(),
-                'current_page' => $data->currentPage(),
-                'last_page' => $data->lastPage(),
-            ],
+            'message' => 'Category found',
+            'data' => new CategoryCollection($data),
         ], 200);
     }
 

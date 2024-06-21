@@ -2,18 +2,21 @@
 
 namespace App\Http\Controllers\API;
 
-use App\Http\Controllers\Controller;
-use App\Http\Requests\ShelfRequest;
-use App\Http\Resources\ShelfCollection;
-use App\Http\Resources\ShelfResource;
 use App\Models\Shelf;
 use Illuminate\Http\Request;
+use App\Http\Requests\ShelfRequest;
+use App\Http\Controllers\Controller;
+use App\Http\Resources\ShelfResource;
+use App\Http\Resources\ShelfCollection;
+use Illuminate\Routing\Controllers\Middleware;
+use Illuminate\Routing\Controllers\HasMiddleware;
 
-class ShelfController extends Controller
+class ShelfController extends Controller implements HasMiddleware
 {
-    public function __construct()
-    {
-        // $this->middleware('isAdmin')->only(['store', 'update', 'destroy']);
+    public static function middleware(): array {
+        return [
+            new Middleware(middleware: 'isAdmin', except: ['index', 'show']),
+        ];
     }
 
     /**
@@ -26,13 +29,7 @@ class ShelfController extends Controller
         return response()->json([
             'success' => true,
             'message' => 'Shelves found',
-            'data' => ShelfResource::collection($data),
-            'meta' => [
-                'total' => $data->total(),
-                'per_page' => $data->perPage(),
-                'current_page' => $data->currentPage(),
-                'last_page' => $data->lastPage(),
-            ],
+            'data' => new ShelfCollection($data),
         ], 200);
     }
 

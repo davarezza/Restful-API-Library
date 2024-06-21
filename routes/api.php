@@ -17,7 +17,6 @@ Route::prefix('library')->group(function() {
     Route::middleware('auth:api')->group(function() {
         Route::post('/refresh', [AuthController::class, 'refresh']);
         Route::apiResource('books', BookController::class);
-        // Route::match(['patch', 'post'], 'books/{book_id}', [BookController::class, 'update']);
         Route::apiResource('shelves', ShelfController::class);
         Route::apiResource('publishers', PublisherController::class);
         Route::apiResource('categories', CategoryController::class);

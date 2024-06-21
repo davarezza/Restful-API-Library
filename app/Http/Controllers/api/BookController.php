@@ -2,17 +2,24 @@
 
 namespace App\Http\Controllers\API;
 
-use App\Http\Controllers\Controller;
-use App\Http\Requests\BookRequest;
-use App\Http\Requests\UpdateBookRequest;
-use App\Http\Resources\BookResource;
 use App\Models\Book;
 use Illuminate\Http\Request;
+use App\Http\Requests\BookRequest;
 use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Facades\File;
+use App\Http\Controllers\Controller;
+use App\Http\Resources\BookResource;
+use App\Http\Requests\UpdateBookRequest;
+use Illuminate\Routing\Controllers\Middleware;
+use Illuminate\Routing\Controllers\HasMiddleware;
 
-class BookController extends Controller
+class BookController extends Controller implements HasMiddleware
 {
+    public static function middleware(): array {
+        return [
+            new Middleware(middleware: 'isAdmin', except: ['index', 'show']),
+        ];
+    }
+
     /**
      * Display a listing of the resource.
      */

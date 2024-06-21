@@ -6,14 +6,18 @@ use App\Models\Author;
 use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\AuthorRequest;
+use App\Http\Resources\AuthorCollection;
 use App\Http\Resources\AuthorResource;
+use Illuminate\Routing\Controllers\HasMiddleware;
+use Illuminate\Routing\Controllers\Middleware;
 use Illuminate\Support\Facades\Validator;
 
-class AuthorController extends Controller
+class AuthorController extends Controller implements HasMiddleware
 {
-    public function __construct()
-    {
-        // $this->middleware('isAdmin')->except(['index', 'show']);
+    public static function middleware(): array {
+        return [
+            new Middleware(middleware: 'isAdmin', except: ['index', 'show']),
+        ];
     }
 
     /**
@@ -25,14 +29,8 @@ class AuthorController extends Controller
 
         return response()->json([
             'success' => true,
-            'message' => 'Categories found',
-            'data' => AuthorResource::collection($data),
-            'meta' => [
-                'total' => $data->total(),
-                'per_page' => $data->perPage(),
-                'current_page' => $data->currentPage(),
-                'last_page' => $data->lastPage(),
-            ],
+            'message' => 'Author found',
+            'data' => new AuthorCollection($data),
         ], 200);
     }
 

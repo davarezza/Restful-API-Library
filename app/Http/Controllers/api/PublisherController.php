@@ -2,16 +2,20 @@
 
 namespace App\Http\Controllers\API;
 
+use App\Models\Publisher;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\PublisherRequest;
+use App\Http\Resources\PublisherCollection;
 use App\Http\Resources\PublisherResource;
-use App\Models\Publisher;
+use Illuminate\Routing\Controllers\HasMiddleware;
+use Illuminate\Routing\Controllers\Middleware;
 
-class PublisherController extends Controller
+class PublisherController extends Controller implements HasMiddleware
 {
-    public function __construct()
-    {
-        // $this->middleware('isAdmin')->except(['index', 'show']);
+    public static function middleware(): array {
+        return [
+            new Middleware(middleware: 'isAdmin', except: ['index', 'show']),
+        ];
     }
 
     /**
@@ -19,18 +23,12 @@ class PublisherController extends Controller
      */
     public function index()
     {
-        $publishers = Publisher::paginate(10);
+        $data = Publisher::paginate(10);
 
         return response()->json([
             'success' => true,
-            'message' => 'Publishers found',
-            'data' => PublisherResource::collection($publishers),
-            'meta' => [
-                'total' => $publishers->total(),
-                'per_page' => $publishers->perPage(),
-                'current_page' => $publishers->currentPage(),
-                'last_page' => $publishers->lastPage(),
-            ],
+            'message' => 'Publisher found',
+            'data' => new PublisherCollection($data),
         ], 200);
     }
 
