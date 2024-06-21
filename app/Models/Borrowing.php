@@ -36,6 +36,11 @@ class Borrowing extends Model
         });
     }
 
+    public static function findBorrowById($id)
+    {
+        return self::find($id);
+    }
+
     public $timestamps = false;
 
     public function user()

@@ -70,7 +70,7 @@ class BorrowingController extends Controller
      */
     public function show(string $id)
     {
-        $data = Borrowing::find($id);
+        $data = Borrowing::findBorrowById($id);
 
         if (!$data) {
             return response()->json([
@@ -94,7 +94,7 @@ class BorrowingController extends Controller
         try {
             DB::beginTransaction();
     
-            $borrowing = Borrowing::findOrFail($id);
+            $borrowing = Borrowing::findBorrowById($id);
             $borrowing->update($request->all());
     
             BorrowingDetail::where('detail_borrowing_id', $borrowing->borrowing_id)->delete();
@@ -130,7 +130,7 @@ class BorrowingController extends Controller
         try {
             DB::beginTransaction();
     
-            $data = Borrowing::find($id);
+            $data = Borrowing::findBorrowById($id);
     
             if (!$data) {
                 return response()->json([
